@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "publisher": "trivx",
   "license": "MIT",
-  "icon": "media/trivx-icon.png",
+  "icon": "media/trivx-icon.svg",
   "repository": {
     "type": "git",
     "url": "https://github.com/trivx-ai/vs-extension.git"

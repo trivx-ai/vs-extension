@@ -66,6 +66,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const pipelineProvider = new PipelineProvider();
   const monitoringProvider = new MonitoringProvider();
 
+  // ─── Status Bar (must be created before refreshAll references it) ─────────
+  const statusBarManager = new StatusBarManager();
+  context.subscriptions.push({ dispose: () => statusBarManager.dispose() });
+
   // Refresh all providers helper
   const refreshAll = () => {
     orgProvider.refresh();
@@ -282,10 +286,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     })
   );
 
-  // ─── Status Bar ────────────────────────────────────────────────────────────
-  const statusBarManager = new StatusBarManager();
-  context.subscriptions.push({ dispose: () => statusBarManager.dispose() });
-
   // ─── Restore Session ──────────────────────────────────────────────────────
   try {
     const restored = await authService.restoreSession();
@@ -320,6 +320,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   );
 
   logger.info('Trivx AI Extension activated successfully!');
+  vscode.window.showInformationMessage('Trivx AI Extension activated! Look for the Trivx icon in the Activity Bar.');
 }
 
 export function deactivate(): void {
