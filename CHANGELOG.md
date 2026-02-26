@@ -5,6 +5,7 @@ All notable changes to the Trivx AI VS Code Extension will be documented in this
 ## [0.1.0] - 2024-01-01
 
 ### Added
+
 - Initial release of Trivx AI VS Code Extension
 - **Authentication**: Token-based and browser login with secure storage
 - **Organization Management**: Switch organizations, view members and plan details

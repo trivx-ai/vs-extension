@@ -29,7 +29,7 @@ export interface PipelineRun {
 export class WorkflowService {
   private static instance: WorkflowService;
 
-  private constructor() {}
+  private constructor() { }
 
   static initialize(): WorkflowService {
     if (!WorkflowService.instance) {

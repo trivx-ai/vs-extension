@@ -32,7 +32,7 @@ export class AIService {
   private static instance: AIService;
   private abortController: AbortController | null = null;
 
-  private constructor() {}
+  private constructor() { }
 
   static initialize(): AIService {
     if (!AIService.instance) {

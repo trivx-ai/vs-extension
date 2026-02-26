@@ -35,7 +35,7 @@ export interface MetricSample {
 export class SREService {
   private static instance: SREService;
 
-  private constructor() {}
+  private constructor() { }
 
   static initialize(): SREService {
     if (!SREService.instance) {

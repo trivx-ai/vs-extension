@@ -24,7 +24,7 @@ export interface Secret {
 export class SecretsService {
   private static instance: SecretsService;
 
-  private constructor() {}
+  private constructor() { }
 
   static initialize(): SecretsService {
     if (!SecretsService.instance) {

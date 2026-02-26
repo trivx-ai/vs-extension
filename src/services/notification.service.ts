@@ -17,7 +17,7 @@ export interface Notification {
 export class NotificationService {
   private static instance: NotificationService;
 
-  private constructor() {}
+  private constructor() { }
 
   static initialize(): NotificationService {
     if (!NotificationService.instance) {

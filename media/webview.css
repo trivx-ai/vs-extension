@@ -1,8 +1,8 @@
 /* Trivx WebView shared styles - loaded via webview URI */
 :root {
-  --trivx-brand: #F2613F;
-  --trivx-brand-light: #FF7F5F;
-  --trivx-brand-dark: #D94C2B;
+  --trivx-brand: #f2613f;
+  --trivx-brand-light: #ff7f5f;
+  --trivx-brand-dark: #d94c2b;
 }
 
 body {

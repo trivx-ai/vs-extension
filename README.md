@@ -11,22 +11,26 @@ Trivx AI brings the full power of the Trivx AI DevOps platform to your editor. D
 ## Features
 
 ### 🔐 Authentication
+
 - **Token-based login** — paste your Trivx JWT token
 - **Browser login** — authenticate via the Trivx dashboard
 - Secure token storage using VS Code SecretStorage
 
 ### 🏢 Organization Management
+
 - Switch between organizations
 - View organization details and members
 - See plan and billing info
 
 ### 📦 Project Management
+
 - Create projects linked to GitHub repositories
 - Browse projects in the sidebar TreeView
 - Auto-detect project from workspace folder
 - View tech stack, branch, and repo info
 
 ### 🚀 One-Click Deployment
+
 - Deploy to production, staging, or development
 - **Real-time deployment progress** via Socket.IO
 - Live deployment logs in an OutputChannel
@@ -34,22 +38,26 @@ Trivx AI brings the full power of the Trivx AI DevOps platform to your editor. D
 - Status bar indicator during deployments
 
 ### 🤖 AI Chat Assistant
+
 - Full AI chat panel with SSE streaming
 - Context-aware responses based on your project
 - **Code actions**: Explain, Refactor, Find Bugs, Security Review, Generate Tests, Add Documentation
 - Quick question command from the command palette
 
 ### ⚙️ CI/CD Pipelines
+
 - View and trigger workflow pipelines
 - Monitor pipeline run status
 - View pipeline logs
 
 ### 🔑 Secrets & Environment Variables
+
 - Create and manage environment groups
 - Add, view, and delete secrets per environment
 - Secure handling of sensitive values
 
 ### 📊 Monitoring & SRE
+
 - View open incidents with severity indicators
 - Query application logs by level
 - View performance metrics with ASCII charts
@@ -68,38 +76,38 @@ Trivx AI brings the full power of the Trivx AI DevOps platform to your editor. D
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| `Trivx: Login` | Authenticate with Trivx |
-| `Trivx: Logout` | Sign out of Trivx |
-| `Trivx: Switch Organization` | Change active organization |
-| `Trivx: Create Project` | Create a new project |
-| `Trivx: Open Project` | Switch active project |
-| `Trivx: Deploy` | Deploy current project |
-| `Trivx: View Deploy Logs` | Show deployment output |
-| `Trivx: Open AI Chat` | Open AI chat panel |
-| `Trivx: AI Suggest` | AI actions on selected code |
-| `Trivx: Run Pipeline` | Trigger a CI/CD pipeline |
-| `Trivx: View Pipeline` | View pipeline run details |
-| `Trivx: Manage Secrets` | Manage env variables & secrets |
-| `Trivx: View Logs` | Query application logs |
-| `Trivx: View Metrics` | View performance metrics |
-| `Trivx: Open Dashboard` | Open SRE dashboard |
-| `Trivx: Refresh` | Refresh all views |
+| Command                      | Description                    |
+| ---------------------------- | ------------------------------ |
+| `Trivx: Login`               | Authenticate with Trivx        |
+| `Trivx: Logout`              | Sign out of Trivx              |
+| `Trivx: Switch Organization` | Change active organization     |
+| `Trivx: Create Project`      | Create a new project           |
+| `Trivx: Open Project`        | Switch active project          |
+| `Trivx: Deploy`              | Deploy current project         |
+| `Trivx: View Deploy Logs`    | Show deployment output         |
+| `Trivx: Open AI Chat`        | Open AI chat panel             |
+| `Trivx: AI Suggest`          | AI actions on selected code    |
+| `Trivx: Run Pipeline`        | Trigger a CI/CD pipeline       |
+| `Trivx: View Pipeline`       | View pipeline run details      |
+| `Trivx: Manage Secrets`      | Manage env variables & secrets |
+| `Trivx: View Logs`           | Query application logs         |
+| `Trivx: View Metrics`        | View performance metrics       |
+| `Trivx: Open Dashboard`      | Open SRE dashboard             |
+| `Trivx: Refresh`             | Refresh all views              |
 
 ---
 
 ## Configuration
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `trivx.apiBaseUrl` | `http://localhost:3000` | Trivx API Gateway URL |
-| `trivx.wsUrl` | `http://localhost:4006` | WebSocket URL for deployments |
-| `trivx.notificationWsUrl` | `http://localhost:3005` | Notification WebSocket URL |
-| `trivx.autoDetectProject` | `true` | Auto-detect project from workspace |
-| `trivx.showDeployNotifications` | `true` | Show deploy status notifications |
-| `trivx.aiModel` | `gpt-4` | AI model for chat |
-| `trivx.logLevel` | `info` | Extension log level |
+| Setting                         | Default                 | Description                        |
+| ------------------------------- | ----------------------- | ---------------------------------- |
+| `trivx.apiBaseUrl`              | `http://localhost:3000` | Trivx API Gateway URL              |
+| `trivx.wsUrl`                   | `http://localhost:4006` | WebSocket URL for deployments      |
+| `trivx.notificationWsUrl`       | `http://localhost:3005` | Notification WebSocket URL         |
+| `trivx.autoDetectProject`       | `true`                  | Auto-detect project from workspace |
+| `trivx.showDeployNotifications` | `true`                  | Show deploy status notifications   |
+| `trivx.aiModel`                 | `gpt-4`                 | AI model for chat                  |
+| `trivx.logLevel`                | `info`                  | Extension log level                |
 
 ---
 

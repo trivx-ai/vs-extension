@@ -9,21 +9,21 @@
 
 ## 1. Technology Stack
 
-| Layer | Technology | Justification |
-|-------|-----------|---------------|
-| **Extension Runtime** | VS Code Extension API (TypeScript) | Native VS Code integration |
-| **Language** | TypeScript 5.x (strict mode) | Type safety, matches backend/frontend |
-| **Build Tool** | esbuild | Fast bundling, small output |
-| **Package Manager** | pnpm | Consistent with monorepo |
-| **HTTP Client** | axios | HTTP requests with interceptors |
-| **WebSocket** | socket.io-client | Real-time deployment updates (matches infra-service) |
-| **SSE** | eventsource-parser | AI chat streaming |
-| **WebView** | HTML/CSS/JS (inline) | AI Chat and Deployment panels |
-| **Auth** | Clerk (browser OAuth flow) with URI handler | Standard VS Code auth pattern |
-| **Secret Storage** | VS Code SecretStorage API | OS keychain (secure token storage) |
-| **State Persistence** | VS Code Memento (globalState/workspaceState) | Lightweight key-value storage |
-| **Testing** | Vitest + @vscode/test-electron | Unit + integration tests |
-| **Linting** | ESLint + Prettier | Code quality |
+| Layer                 | Technology                                   | Justification                                        |
+| --------------------- | -------------------------------------------- | ---------------------------------------------------- |
+| **Extension Runtime** | VS Code Extension API (TypeScript)           | Native VS Code integration                           |
+| **Language**          | TypeScript 5.x (strict mode)                 | Type safety, matches backend/frontend                |
+| **Build Tool**        | esbuild                                      | Fast bundling, small output                          |
+| **Package Manager**   | pnpm                                         | Consistent with monorepo                             |
+| **HTTP Client**       | axios                                        | HTTP requests with interceptors                      |
+| **WebSocket**         | socket.io-client                             | Real-time deployment updates (matches infra-service) |
+| **SSE**               | eventsource-parser                           | AI chat streaming                                    |
+| **WebView**           | HTML/CSS/JS (inline)                         | AI Chat and Deployment panels                        |
+| **Auth**              | Clerk (browser OAuth flow) with URI handler  | Standard VS Code auth pattern                        |
+| **Secret Storage**    | VS Code SecretStorage API                    | OS keychain (secure token storage)                   |
+| **State Persistence** | VS Code Memento (globalState/workspaceState) | Lightweight key-value storage                        |
+| **Testing**           | Vitest + @vscode/test-electron               | Unit + integration tests                             |
+| **Linting**           | ESLint + Prettier                            | Code quality                                         |
 
 ---
 
@@ -167,37 +167,39 @@ Extension/
 
 #### Commands (18 total)
 
-| Command ID | Title | Category | Icon |
-|------------|-------|----------|------|
-| `trivx.login` | Login to Trivx | Trivx | sign-in |
-| `trivx.logout` | Logout | Trivx | sign-out |
-| `trivx.switchOrg` | Switch Organization | Trivx | organization |
-| `trivx.createProject` | Create Project | Trivx | add |
-| `trivx.deploy` | Deploy Project | Trivx | rocket |
-| `trivx.cancelDeploy` | Cancel Deployment | Trivx | close |
-| `trivx.rollback` | Rollback Deployment | Trivx | discard |
-| `trivx.openAIChat` | Open AI Chat | Trivx | comment-discussion |
-| `trivx.viewDeployments` | View Deployments | Trivx | list-tree |
-| `trivx.runPipeline` | Run Pipeline | Trivx | play |
-| `trivx.cancelPipeline` | Cancel Pipeline | Trivx | debug-stop |
-| `trivx.manageSecrets` | Manage Secrets | Trivx | lock |
-| `trivx.viewIncidents` | View Incidents | Trivx | warning |
-| `trivx.viewLogs` | View Logs | Trivx | output |
-| `trivx.openDashboard` | Open Dashboard | Trivx | dashboard |
-| `trivx.viewUsage` | View Usage | Trivx | graph |
-| `trivx.analyzeRepo` | Analyze Repository | Trivx | search |
-| `trivx.refreshAll` | Refresh All | Trivx | refresh |
+| Command ID              | Title               | Category | Icon               |
+| ----------------------- | ------------------- | -------- | ------------------ |
+| `trivx.login`           | Login to Trivx      | Trivx    | sign-in            |
+| `trivx.logout`          | Logout              | Trivx    | sign-out           |
+| `trivx.switchOrg`       | Switch Organization | Trivx    | organization       |
+| `trivx.createProject`   | Create Project      | Trivx    | add                |
+| `trivx.deploy`          | Deploy Project      | Trivx    | rocket             |
+| `trivx.cancelDeploy`    | Cancel Deployment   | Trivx    | close              |
+| `trivx.rollback`        | Rollback Deployment | Trivx    | discard            |
+| `trivx.openAIChat`      | Open AI Chat        | Trivx    | comment-discussion |
+| `trivx.viewDeployments` | View Deployments    | Trivx    | list-tree          |
+| `trivx.runPipeline`     | Run Pipeline        | Trivx    | play               |
+| `trivx.cancelPipeline`  | Cancel Pipeline     | Trivx    | debug-stop         |
+| `trivx.manageSecrets`   | Manage Secrets      | Trivx    | lock               |
+| `trivx.viewIncidents`   | View Incidents      | Trivx    | warning            |
+| `trivx.viewLogs`        | View Logs           | Trivx    | output             |
+| `trivx.openDashboard`   | Open Dashboard      | Trivx    | dashboard          |
+| `trivx.viewUsage`       | View Usage          | Trivx    | graph              |
+| `trivx.analyzeRepo`     | Analyze Repository  | Trivx    | search             |
+| `trivx.refreshAll`      | Refresh All         | Trivx    | refresh            |
 
 #### Views Container (Activity Bar)
 
 ```json
 {
   "viewsContainers": {
-    "activitybar": [{
-      "id": "trivx-sidebar",
-      "title": "Trivx AI",
-      "icon": "media/trivx-icon.svg"
-    }]
+    "activitybar": [
+      {
+        "id": "trivx-sidebar",
+        "title": "Trivx AI",
+        "icon": "media/trivx-icon.svg"
+      }
+    ]
   }
 }
 ```
@@ -209,11 +211,31 @@ Extension/
   "views": {
     "trivx-sidebar": [
       { "id": "trivx-welcome", "name": "Welcome", "when": "!trivx.isLoggedIn" },
-      { "id": "trivx-organization", "name": "Organization", "when": "trivx.isLoggedIn" },
-      { "id": "trivx-projects", "name": "Projects", "when": "trivx.isLoggedIn" },
-      { "id": "trivx-deployments", "name": "Deployments", "when": "trivx.isLoggedIn" },
-      { "id": "trivx-pipelines", "name": "Pipelines", "when": "trivx.isLoggedIn" },
-      { "id": "trivx-monitoring", "name": "Monitoring", "when": "trivx.isLoggedIn" }
+      {
+        "id": "trivx-organization",
+        "name": "Organization",
+        "when": "trivx.isLoggedIn"
+      },
+      {
+        "id": "trivx-projects",
+        "name": "Projects",
+        "when": "trivx.isLoggedIn"
+      },
+      {
+        "id": "trivx-deployments",
+        "name": "Deployments",
+        "when": "trivx.isLoggedIn"
+      },
+      {
+        "id": "trivx-pipelines",
+        "name": "Pipelines",
+        "when": "trivx.isLoggedIn"
+      },
+      {
+        "id": "trivx-monitoring",
+        "name": "Monitoring",
+        "when": "trivx.isLoggedIn"
+      }
     ]
   }
 }
@@ -275,11 +297,16 @@ class ApiClient {
   patch<T>(path: string, data?: any): Promise<T>;
   put<T>(path: string, data?: any): Promise<T>;
   delete<T>(path: string): Promise<T>;
-  stream(path: string, data: any, onChunk: (chunk: string) => void): Promise<void>;
+  stream(
+    path: string,
+    data: any,
+    onChunk: (chunk: string) => void,
+  ): Promise<void>;
 }
 ```
 
 Interceptors handle:
+
 - Auto-inject Bearer token
 - Error normalization (ApiError class)
 - Request/response logging to OutputChannel
@@ -290,17 +317,18 @@ Interceptors handle:
 ```typescript
 class AuthService {
   // Token stored in VS Code SecretStorage (OS keychain)
-  login(): Promise<void>;               // Opens browser for Clerk OAuth
-  logout(): Promise<void>;              // Clears all stored tokens
-  getToken(): Promise<string | null>;   // Retrieves stored JWT
-  refreshToken(): Promise<string>;      // Refresh token flow
-  getCurrentUser(): Promise<User>;      // Fetch user profile
-  isLoggedIn(): boolean;                // Check auth state
-  onAuthStateChanged: Event<boolean>;   // Event emitter for auth changes
+  login(): Promise<void>; // Opens browser for Clerk OAuth
+  logout(): Promise<void>; // Clears all stored tokens
+  getToken(): Promise<string | null>; // Retrieves stored JWT
+  refreshToken(): Promise<string>; // Refresh token flow
+  getCurrentUser(): Promise<User>; // Fetch user profile
+  isLoggedIn(): boolean; // Check auth state
+  onAuthStateChanged: Event<boolean>; // Event emitter for auth changes
 }
 ```
 
 **Auth Flow (Browser-based):**
+
 1. Extension registers a URI handler (`vscode://trivx.trivx-ai/auth/callback`)
 2. Opens default browser to Clerk login page with redirect URI
 3. After login, Clerk redirects to URI handler
@@ -316,7 +344,7 @@ class DeployService {
   rollback(deploymentId: string): Promise<void>;
   listDeployments(projectId: string): Promise<Deployment[]>;
   getDeployment(deploymentId: string): Promise<Deployment>;
-  
+
   // Socket.IO real-time
   subscribeToDeployment(deploymentId: string): void;
   unsubscribeFromDeployment(deploymentId: string): void;
@@ -336,7 +364,7 @@ class AIService {
   getSession(sessionId: string): Promise<ChatSession>;
   deleteSession(sessionId: string): Promise<void>;
   getProjectContext(projectId: string): Promise<AIContext>;
-  
+
   // SSE event callbacks
   interface StreamCallbacks {
     onIntent: (intent: string) => void;
@@ -401,6 +429,7 @@ Deployments
 ### 7.1 AI Chat WebView
 
 **Communication Protocol:**
+
 ```
 Extension ←→ WebView via postMessage/onDidReceiveMessage
 
@@ -426,12 +455,14 @@ Messages from Extension → WebView:
 ### 7.2 Deployment Progress WebView
 
 **Visual Design:**
+
 - Step list with checkmarks/spinners/x-marks
 - Progress percentage bar
 - Real-time log output area
 - Action buttons (Cancel, Open URL)
 
 **Steps displayed:**
+
 1. ⬜ Provisioning Infrastructure
 2. ⬜ Allocating IP Address
 3. ⬜ Establishing SSH Connection
@@ -494,39 +525,39 @@ User sends message
 
 ### 9.1 Global State (Memento)
 
-| Key | Type | Description |
-|-----|------|-------------|
-| `trivx.currentOrgId` | string | Active organization ID |
-| `trivx.currentOrgSlug` | string | Active organization slug |
-| `trivx.currentProjectId` | string | Active project ID |
-| `trivx.lastDeployments` | Deployment[] | Cached recent deployments |
-| `trivx.aiSessions` | string[] | Recent AI session IDs |
+| Key                      | Type         | Description               |
+| ------------------------ | ------------ | ------------------------- |
+| `trivx.currentOrgId`     | string       | Active organization ID    |
+| `trivx.currentOrgSlug`   | string       | Active organization slug  |
+| `trivx.currentProjectId` | string       | Active project ID         |
+| `trivx.lastDeployments`  | Deployment[] | Cached recent deployments |
+| `trivx.aiSessions`       | string[]     | Recent AI session IDs     |
 
 ### 9.2 Secret Storage
 
-| Key | Description |
-|-----|-------------|
-| `trivx.authToken` | JWT authentication token |
-| `trivx.refreshToken` | Token refresh credential |
-| `trivx.userId` | Current user ID |
+| Key                    | Description              |
+| ---------------------- | ------------------------ |
+| `trivx.authToken`      | JWT authentication token |
+| `trivx.refreshToken`   | Token refresh credential |
+| `trivx.userId`         | Current user ID          |
 | `trivx.clerkSessionId` | Clerk session identifier |
 
 ### 9.3 Workspace State
 
-| Key | Type | Description |
-|-----|------|-------------|
+| Key                     | Type   | Description                      |
+| ----------------------- | ------ | -------------------------------- |
 | `trivx.linkedProjectId` | string | Project linked to this workspace |
-| `trivx.envFile` | string | Path to `.env` file used |
+| `trivx.envFile`         | string | Path to `.env` file used         |
 
 ### 9.4 Context Keys (for `when` clauses)
 
-| Key | Type | Description |
-|-----|------|-------------|
-| `trivx.isLoggedIn` | boolean | User is authenticated |
+| Key                     | Type    | Description              |
+| ----------------------- | ------- | ------------------------ |
+| `trivx.isLoggedIn`      | boolean | User is authenticated    |
 | `trivx.hasOrganization` | boolean | User has an organization |
-| `trivx.hasProject` | boolean | Active project selected |
-| `trivx.isDeploying` | boolean | Deployment in progress |
-| `trivx.aiChatOpen` | boolean | AI chat panel is open |
+| `trivx.hasProject`      | boolean | Active project selected  |
+| `trivx.isDeploying`     | boolean | Deployment in progress   |
+| `trivx.aiChatOpen`      | boolean | AI chat panel is open    |
 
 ---
 
@@ -541,50 +572,50 @@ class TrivxError extends Error {
   details?: any;
 }
 
-class AuthError extends TrivxError { }    // 401, token expired
-class ForbiddenError extends TrivxError { } // 403, RBAC denied
-class NotFoundError extends TrivxError { }  // 404, resource not found
-class RateLimitError extends TrivxError { } // 429, too many requests
-class NetworkError extends TrivxError { }   // Connection failed
+class AuthError extends TrivxError {} // 401, token expired
+class ForbiddenError extends TrivxError {} // 403, RBAC denied
+class NotFoundError extends TrivxError {} // 404, resource not found
+class RateLimitError extends TrivxError {} // 429, too many requests
+class NetworkError extends TrivxError {} // Connection failed
 ```
 
 ### 10.2 Error Recovery
 
-| Error | Action |
-|-------|--------|
-| 401 Unauthorized | Attempt token refresh → if fails, prompt re-login |
-| 403 Forbidden | Show "Insufficient permissions" notification |
-| 404 Not Found | Remove from cache, refresh tree view |
-| 429 Rate Limited | Queue request with exponential backoff |
-| Network Error | Show offline indicator, use cached data |
+| Error             | Action                                                |
+| ----------------- | ----------------------------------------------------- |
+| 401 Unauthorized  | Attempt token refresh → if fails, prompt re-login     |
+| 403 Forbidden     | Show "Insufficient permissions" notification          |
+| 404 Not Found     | Remove from cache, refresh tree view                  |
+| 429 Rate Limited  | Queue request with exponential backoff                |
+| Network Error     | Show offline indicator, use cached data               |
 | Socket Disconnect | Auto-reconnect with backoff (1s, 2s, 4s, 8s, 16s max) |
 
 ---
 
 ## 11. Security Considerations
 
-| Concern | Solution |
-|---------|----------|
-| Token storage | VS Code SecretStorage (OS keychain) — never plaintext |
-| Token in memory | Cleared on deactivation, never logged |
-| API communication | HTTPS in production, token in Authorization header |
-| Secret values | Never displayed in TreeView; masked in WebView |
-| URI handler | Validate state parameter to prevent CSRF |
-| WebView XSS | CSP headers, nonce-based script loading |
-| Extension permissions | Minimal required: workspace.fs, authentication |
+| Concern               | Solution                                              |
+| --------------------- | ----------------------------------------------------- |
+| Token storage         | VS Code SecretStorage (OS keychain) — never plaintext |
+| Token in memory       | Cleared on deactivation, never logged                 |
+| API communication     | HTTPS in production, token in Authorization header    |
+| Secret values         | Never displayed in TreeView; masked in WebView        |
+| URI handler           | Validate state parameter to prevent CSRF              |
+| WebView XSS           | CSP headers, nonce-based script loading               |
+| Extension permissions | Minimal required: workspace.fs, authentication        |
 
 ---
 
 ## 12. Performance Targets
 
-| Metric | Target | Implementation |
-|--------|--------|----------------|
-| Extension activation | < 300ms | Lazy service initialization |
-| TreeView refresh | < 500ms | Cached data with background refresh |
-| Deploy trigger to first log | < 3s | Direct API + immediate Socket.IO |
-| AI first token latency | < 2s | SSE stream, no buffering |
-| Memory usage | < 50MB | Cleanup subscriptions, limit cached items |
-| Bundle size | < 500KB | esbuild tree-shaking, minimal dependencies |
+| Metric                      | Target  | Implementation                             |
+| --------------------------- | ------- | ------------------------------------------ |
+| Extension activation        | < 300ms | Lazy service initialization                |
+| TreeView refresh            | < 500ms | Cached data with background refresh        |
+| Deploy trigger to first log | < 3s    | Direct API + immediate Socket.IO           |
+| AI first token latency      | < 2s    | SSE stream, no buffering                   |
+| Memory usage                | < 50MB  | Cleanup subscriptions, limit cached items  |
+| Bundle size                 | < 500KB | esbuild tree-shaking, minimal dependencies |
 
 ---
 
@@ -592,23 +623,23 @@ class NetworkError extends TrivxError { }   // Connection failed
 
 ### Runtime Dependencies
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| `axios` | ^1.7.x | HTTP client |
-| `socket.io-client` | ^4.7.x | Real-time deployment updates |
-| `eventsource-parser` | ^3.0.x | SSE stream parsing |
+| Package              | Version | Purpose                      |
+| -------------------- | ------- | ---------------------------- |
+| `axios`              | ^1.7.x  | HTTP client                  |
+| `socket.io-client`   | ^4.7.x  | Real-time deployment updates |
+| `eventsource-parser` | ^3.0.x  | SSE stream parsing           |
 
 ### Dev Dependencies
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| `@types/vscode` | ^1.85.0 | VS Code API types |
-| `typescript` | ^5.4.x | TypeScript compiler |
-| `esbuild` | ^0.20.x | Bundler |
-| `@vscode/test-electron` | ^2.3.x | Integration testing |
-| `vitest` | ^1.x | Unit testing |
-| `eslint` | ^8.x | Linting |
-| `prettier` | ^3.x | Formatting |
+| Package                 | Version | Purpose             |
+| ----------------------- | ------- | ------------------- |
+| `@types/vscode`         | ^1.85.0 | VS Code API types   |
+| `typescript`            | ^5.4.x  | TypeScript compiler |
+| `esbuild`               | ^0.20.x | Bundler             |
+| `@vscode/test-electron` | ^2.3.x  | Integration testing |
+| `vitest`                | ^1.x    | Unit testing        |
+| `eslint`                | ^8.x    | Linting             |
+| `prettier`              | ^3.x    | Formatting          |
 
 ---
 
@@ -697,69 +728,69 @@ All requests go through the API Gateway unless noted:
 ```typescript
 const API_ROUTES = {
   // Auth Service (via gateway)
-  AUTH_USER: '/api/v1/auth/user',
-  AUTH_VALIDATE: '/api/v1/auth/validate',
-  AUTH_SESSIONS: '/api/v1/auth/sessions',
-  
+  AUTH_USER: "/api/v1/auth/user",
+  AUTH_VALIDATE: "/api/v1/auth/validate",
+  AUTH_SESSIONS: "/api/v1/auth/sessions",
+
   // Organization Service (via gateway)
-  ORG_CREATE: '/api/v1/organizations/api/organization/create',
-  ORG_GET: '/api/v1/organizations/api/organization',
-  ORG_LIST: '/api/v1/organizations/api/organization/list',
-  ORG_MEMBERS: '/api/v1/organizations/api/organization/{id}/members',
-  ORG_INVITE: '/api/v1/organizations/api/organization/{id}/invite',
-  
+  ORG_CREATE: "/api/v1/organizations/api/organization/create",
+  ORG_GET: "/api/v1/organizations/api/organization",
+  ORG_LIST: "/api/v1/organizations/api/organization/list",
+  ORG_MEMBERS: "/api/v1/organizations/api/organization/{id}/members",
+  ORG_INVITE: "/api/v1/organizations/api/organization/{id}/invite",
+
   // Project Service (via gateway)
-  PROJECT_CREATE: '/api/v1/projects/api/projects',
-  PROJECT_GET: '/api/v1/projects/api/projects/{id}',
-  PROJECT_LIST_ORG: '/api/v1/projects/api/projects/organization/{orgId}',
-  PROJECT_LINK_REPO: '/api/v1/projects/api/projects/{id}/link-repository-app',
-  PROJECT_DEPLOY: '/api/v1/projects/api/projects/{id}/deploy',
-  PROJECT_ANALYZE: '/api/v1/projects/api/projects/{id}/analyze',
-  GITHUB_INSTALLATIONS: '/api/v1/projects/api/github/installations/{userId}',
-  GITHUB_REPOS: '/api/v1/projects/api/github/installations/{id}/repos',
-  
+  PROJECT_CREATE: "/api/v1/projects/api/projects",
+  PROJECT_GET: "/api/v1/projects/api/projects/{id}",
+  PROJECT_LIST_ORG: "/api/v1/projects/api/projects/organization/{orgId}",
+  PROJECT_LINK_REPO: "/api/v1/projects/api/projects/{id}/link-repository-app",
+  PROJECT_DEPLOY: "/api/v1/projects/api/projects/{id}/deploy",
+  PROJECT_ANALYZE: "/api/v1/projects/api/projects/{id}/analyze",
+  GITHUB_INSTALLATIONS: "/api/v1/projects/api/github/installations/{userId}",
+  GITHUB_REPOS: "/api/v1/projects/api/github/installations/{id}/repos",
+
   // Infra Service (via gateway)
-  DEPLOY_EXECUTE: '/api/v1/infra/deployments/execute',
-  DEPLOY_STATUS: '/api/v1/infra/deployments/execute/{id}/status',
-  DEPLOY_LIST: '/api/v1/infra/deployments',
-  DEPLOY_CANCEL: '/api/v1/infra/deployments/{id}/cancel',
-  DEPLOY_ROLLBACK: '/api/v1/infra/deployments/{id}/rollback',
-  
+  DEPLOY_EXECUTE: "/api/v1/infra/deployments/execute",
+  DEPLOY_STATUS: "/api/v1/infra/deployments/execute/{id}/status",
+  DEPLOY_LIST: "/api/v1/infra/deployments",
+  DEPLOY_CANCEL: "/api/v1/infra/deployments/{id}/cancel",
+  DEPLOY_ROLLBACK: "/api/v1/infra/deployments/{id}/rollback",
+
   // AI Service (via gateway)
-  AI_CHAT: '/api/v1/ai/chat',
-  AI_CHAT_STREAM: '/api/v1/ai/chat/stream',
-  AI_SESSIONS: '/api/v1/ai/sessions',
-  AI_CONTEXT: '/api/v1/ai/context/{projectId}',
-  
+  AI_CHAT: "/api/v1/ai/chat",
+  AI_CHAT_STREAM: "/api/v1/ai/chat/stream",
+  AI_SESSIONS: "/api/v1/ai/sessions",
+  AI_CONTEXT: "/api/v1/ai/context/{projectId}",
+
   // Workflow Service (via gateway)
-  WORKFLOW_LIST: '/api/v1/workflows/api/workflows/{projectId}',
-  WORKFLOW_RUN: '/api/v1/workflows/api/workflows/{id}/run',
-  PIPELINE_LIST: '/api/v1/workflows/api/pipelines/project/{projectId}',
-  PIPELINE_CANCEL: '/api/v1/workflows/api/pipelines/{id}/cancel',
-  PIPELINE_LOGS: '/api/v1/workflows/api/pipelines/{id}/logs',
-  
+  WORKFLOW_LIST: "/api/v1/workflows/api/workflows/{projectId}",
+  WORKFLOW_RUN: "/api/v1/workflows/api/workflows/{id}/run",
+  PIPELINE_LIST: "/api/v1/workflows/api/pipelines/project/{projectId}",
+  PIPELINE_CANCEL: "/api/v1/workflows/api/pipelines/{id}/cancel",
+  PIPELINE_LOGS: "/api/v1/workflows/api/pipelines/{id}/logs",
+
   // Env-Secrets Service (via gateway)
-  ENV_GROUPS: '/api/v1/env-secrets/api/v1/env-groups/{projectId}',
-  SECRETS: '/api/v1/env-secrets/api/v1/secrets/{projectId}/{groupId}',
-  
-  // SRE Service 
-  SRE_INCIDENTS: '/api/v1/sre/api/sre/v1/incidents',
-  SRE_LOGS: '/api/v1/sre/api/sre/v1/logs',
-  SRE_METRICS: '/api/v1/sre/api/sre/v1/metrics/query',
-  SRE_DASHBOARD: '/api/v1/sre/api/sre/v1/dashboard',
-  
+  ENV_GROUPS: "/api/v1/env-secrets/api/v1/env-groups/{projectId}",
+  SECRETS: "/api/v1/env-secrets/api/v1/secrets/{projectId}/{groupId}",
+
+  // SRE Service
+  SRE_INCIDENTS: "/api/v1/sre/api/sre/v1/incidents",
+  SRE_LOGS: "/api/v1/sre/api/sre/v1/logs",
+  SRE_METRICS: "/api/v1/sre/api/sre/v1/metrics/query",
+  SRE_DASHBOARD: "/api/v1/sre/api/sre/v1/dashboard",
+
   // Billing Service (via gateway)
-  BILLING_ACCOUNT: '/api/v1/billing/organizations/{orgId}/billing',
-  BILLING_USAGE: '/api/v1/billing/organizations/{orgId}/usage',
-  
+  BILLING_ACCOUNT: "/api/v1/billing/organizations/{orgId}/billing",
+  BILLING_USAGE: "/api/v1/billing/organizations/{orgId}/usage",
+
   // Notification Service
-  NOTIFICATIONS: '/api/v1/notifications/api/v1/notifications/{userId}',
+  NOTIFICATIONS: "/api/v1/notifications/api/v1/notifications/{userId}",
 };
 ```
 
 ### WebSocket Endpoints
 
-| Connection | URL | Auth |
-|-----------|-----|------|
-| Deployment Socket.IO | `ws://{infraUrl}` + `/socket.io/` | `{ userId, organizationId }` in auth |
-| Notification WebSocket | `ws://{notifUrl}:3005/ws` | `{ userId }` in connection params |
+| Connection             | URL                               | Auth                                 |
+| ---------------------- | --------------------------------- | ------------------------------------ |
+| Deployment Socket.IO   | `ws://{infraUrl}` + `/socket.io/` | `{ userId, organizationId }` in auth |
+| Notification WebSocket | `ws://{notifUrl}:3005/ws`         | `{ userId }` in connection params    |

@@ -23,7 +23,7 @@ export interface UsageSummary {
 export class BillingService {
   private static instance: BillingService;
 
-  private constructor() {}
+  private constructor() { }
 
   static initialize(): BillingService {
     if (!BillingService.instance) {
