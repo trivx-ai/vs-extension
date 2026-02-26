@@ -141,7 +141,7 @@ export class ProjectService {
 
   async listInstallations(userId: string): Promise<GitHubInstallation[]> {
     try {
-      const response = await apiClient.get<any>(API_ROUTES.GITHUB_INSTALLATIONS(userId));
+      const response = await apiClient.get<any>(API_ROUTES.GITHUB_INSTALLATIONS, { userId });
       return response.installations || response.data || response || [];
     } catch (error) {
       logger.error('Failed to list GitHub installations', error);

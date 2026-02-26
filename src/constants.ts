@@ -107,8 +107,8 @@ export const API_ROUTES = {
   PROJECT_LINK_REPO: (id: string) => `/api/v1/projects/api/projects/${id}/link-repository-app`,
   PROJECT_DEPLOY: (id: string) => `/api/v1/projects/api/projects/${id}/deploy`,
   PROJECT_ANALYZE: (id: string) => `/api/v1/projects/api/projects/${id}/analyze`,
-  GITHUB_INSTALLATIONS: (userId: string) => `/api/v1/projects/api/github/installations/${userId}`,
-  GITHUB_REPOS: (installationId: string) => `/api/v1/projects/api/github/installations/${installationId}/repos`,
+  GITHUB_INSTALLATIONS: '/api/v1/projects/api/github/installations',
+  GITHUB_REPOS: (installationId: string) => `/api/v1/projects/api/github/installations/${installationId}/repositories`,
 
   // Infra / Deployment
   DEPLOY_EXECUTE: '/api/v1/infra/api/v1/infra/deployments/execute',

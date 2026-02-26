@@ -263,17 +263,17 @@
         "trivx.apiBaseUrl": {
           "type": "string",
           "default": "http://localhost:3000",
-          "description": "Trivx API Gateway base URL"
+          "description": "Trivx API Gateway base URL. This is the only URL you need to change for production — set it to your deployed gateway (e.g. https://api.yourdomain.com). All HTTP API calls and Socket.IO (deployment updates) route through this single endpoint."
         },
         "trivx.wsUrl": {
           "type": "string",
-          "default": "http://localhost:4006",
-          "description": "Infra Service WebSocket URL for deployment updates"
+          "default": "",
+          "description": "(Advanced) Override the Socket.IO URL for deployment updates. Leave empty to use apiBaseUrl (recommended). Only set this if your infra-service is exposed on a separate host."
         },
         "trivx.notificationWsUrl": {
           "type": "string",
-          "default": "ws://localhost:3005",
-          "description": "Notification Service WebSocket URL"
+          "default": "",
+          "description": "(Advanced) Override the notification WebSocket URL. Leave empty to derive from apiBaseUrl (recommended)."
         },
         "trivx.autoDetectProject": {
           "type": "boolean",

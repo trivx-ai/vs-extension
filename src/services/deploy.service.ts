@@ -119,7 +119,12 @@ export class DeployService {
       this.socket.disconnect();
     }
 
-    this.socket = io(config.wsUrl, {
+    // Connect Socket.IO through the API gateway so a single URL works in both
+    // dev (http://localhost:3000) and production (https://api.yourdomain.com).
+    // The gateway proxies /api/v1/infra → infra-service, stripping the prefix,
+    // so /api/v1/infra/socket.io → infra-service /socket.io.
+    this.socket = io(config.apiBaseUrl, {
+      path: '/api/v1/infra/socket.io',
       auth: { userId, organizationId },
       transports: ['websocket', 'polling'],
       reconnection: true,
