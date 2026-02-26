@@ -376,6 +376,8 @@ export class AuthService implements vscode.UriHandler {
 
   private clearPendingAuth(): void {
     this.pendingAuthState = null;
+    this.pendingAuthResolve = null;
+    this.pendingAuthReject = null;
     if (this.pendingAuthTimeout) {
       clearTimeout(this.pendingAuthTimeout);
       this.pendingAuthTimeout = null;
