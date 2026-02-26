@@ -1,0 +1,329 @@
+{
+  "name": "trivx-ai",
+  "displayName": "Trivx AI - DevOps Platform",
+  "description": "AI-powered DevOps platform in your editor. Deploy, monitor, and manage infrastructure without leaving VS Code.",
+  "version": "1.0.0",
+  "publisher": "trivx",
+  "license": "MIT",
+  "icon": "media/trivx-icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trivx-ai/vs-extension.git"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "SCM Providers",
+    "Debuggers"
+  ],
+  "keywords": [
+    "devops",
+    "deployment",
+    "ai",
+    "ci-cd",
+    "infrastructure",
+    "monitoring",
+    "trivx"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "trivx.login",
+        "title": "Login to Trivx",
+        "category": "Trivx",
+        "icon": "$(sign-in)"
+      },
+      {
+        "command": "trivx.logout",
+        "title": "Logout",
+        "category": "Trivx",
+        "icon": "$(sign-out)"
+      },
+      {
+        "command": "trivx.switchOrg",
+        "title": "Switch Organization",
+        "category": "Trivx",
+        "icon": "$(organization)"
+      },
+      {
+        "command": "trivx.createProject",
+        "title": "Create Project",
+        "category": "Trivx",
+        "icon": "$(add)"
+      },
+      {
+        "command": "trivx.deploy",
+        "title": "Deploy Project",
+        "category": "Trivx",
+        "icon": "$(rocket)"
+      },
+      {
+        "command": "trivx.cancelDeploy",
+        "title": "Cancel Deployment",
+        "category": "Trivx",
+        "icon": "$(close)"
+      },
+      {
+        "command": "trivx.rollback",
+        "title": "Rollback Deployment",
+        "category": "Trivx",
+        "icon": "$(discard)"
+      },
+      {
+        "command": "trivx.openAIChat",
+        "title": "Open AI Chat",
+        "category": "Trivx",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "trivx.viewDeployments",
+        "title": "View Deployments",
+        "category": "Trivx",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "trivx.runPipeline",
+        "title": "Run Pipeline",
+        "category": "Trivx",
+        "icon": "$(play)"
+      },
+      {
+        "command": "trivx.cancelPipeline",
+        "title": "Cancel Pipeline",
+        "category": "Trivx",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "trivx.manageSecrets",
+        "title": "Manage Secrets",
+        "category": "Trivx",
+        "icon": "$(lock)"
+      },
+      {
+        "command": "trivx.viewIncidents",
+        "title": "View Incidents",
+        "category": "Trivx",
+        "icon": "$(warning)"
+      },
+      {
+        "command": "trivx.viewLogs",
+        "title": "View Logs",
+        "category": "Trivx",
+        "icon": "$(output)"
+      },
+      {
+        "command": "trivx.openDashboard",
+        "title": "Open Dashboard",
+        "category": "Trivx",
+        "icon": "$(dashboard)"
+      },
+      {
+        "command": "trivx.viewUsage",
+        "title": "View Usage & Billing",
+        "category": "Trivx",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "trivx.analyzeRepo",
+        "title": "Analyze Repository",
+        "category": "Trivx",
+        "icon": "$(search)"
+      },
+      {
+        "command": "trivx.refreshAll",
+        "title": "Refresh All",
+        "category": "Trivx",
+        "icon": "$(refresh)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "trivx-sidebar",
+          "title": "Trivx AI",
+          "icon": "media/trivx-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "trivx-sidebar": [
+        {
+          "id": "trivx-welcome",
+          "name": "Welcome",
+          "when": "!trivx.isLoggedIn"
+        },
+        {
+          "id": "trivx-organization",
+          "name": "Organization",
+          "when": "trivx.isLoggedIn"
+        },
+        {
+          "id": "trivx-projects",
+          "name": "Projects",
+          "when": "trivx.isLoggedIn"
+        },
+        {
+          "id": "trivx-deployments",
+          "name": "Deployments",
+          "when": "trivx.isLoggedIn"
+        },
+        {
+          "id": "trivx-pipelines",
+          "name": "Pipelines",
+          "when": "trivx.isLoggedIn"
+        },
+        {
+          "id": "trivx-monitoring",
+          "name": "Monitoring",
+          "when": "trivx.isLoggedIn"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "trivx-welcome",
+        "contents": "Welcome to Trivx AI!\n\nDeploy, monitor, and manage your applications with AI-powered DevOps — right from your editor.\n\n[Login to Trivx](command:trivx.login)\n\nNew to Trivx? [Sign up](https://app.trivx.in/signup)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "trivx.refreshAll",
+          "when": "view =~ /^trivx-/",
+          "group": "navigation"
+        },
+        {
+          "command": "trivx.createProject",
+          "when": "view == trivx-projects",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "trivx.deploy",
+          "when": "viewItem == project",
+          "group": "inline"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "trivx.logout",
+          "when": "trivx.isLoggedIn"
+        },
+        {
+          "command": "trivx.switchOrg",
+          "when": "trivx.isLoggedIn"
+        },
+        {
+          "command": "trivx.createProject",
+          "when": "trivx.isLoggedIn"
+        },
+        {
+          "command": "trivx.deploy",
+          "when": "trivx.isLoggedIn"
+        },
+        {
+          "command": "trivx.cancelDeploy",
+          "when": "trivx.isLoggedIn && trivx.isDeploying"
+        },
+        {
+          "command": "trivx.rollback",
+          "when": "trivx.isLoggedIn"
+        },
+        {
+          "command": "trivx.openAIChat",
+          "when": "trivx.isLoggedIn"
+        },
+        {
+          "command": "trivx.runPipeline",
+          "when": "trivx.isLoggedIn"
+        },
+        {
+          "command": "trivx.manageSecrets",
+          "when": "trivx.isLoggedIn"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Trivx AI",
+      "properties": {
+        "trivx.apiBaseUrl": {
+          "type": "string",
+          "default": "http://localhost:3000",
+          "description": "Trivx API Gateway base URL"
+        },
+        "trivx.wsUrl": {
+          "type": "string",
+          "default": "http://localhost:4006",
+          "description": "Infra Service WebSocket URL for deployment updates"
+        },
+        "trivx.notificationWsUrl": {
+          "type": "string",
+          "default": "ws://localhost:3005",
+          "description": "Notification Service WebSocket URL"
+        },
+        "trivx.autoDetectProject": {
+          "type": "boolean",
+          "default": true,
+          "description": "Auto-detect current workspace as a Trivx project"
+        },
+        "trivx.showDeployNotifications": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show deployment status notifications"
+        },
+        "trivx.aiModel": {
+          "type": "string",
+          "default": "claude-sonnet",
+          "enum": [
+            "claude-sonnet",
+            "claude-haiku",
+            "claude-opus"
+          ],
+          "description": "Default AI model for Trivx AI Chat"
+        },
+        "trivx.logLevel": {
+          "type": "string",
+          "default": "info",
+          "enum": [
+            "debug",
+            "info",
+            "warn",
+            "error"
+          ],
+          "description": "Extension log level"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run build",
+    "build": "node esbuild.js --production",
+    "watch": "node esbuild.js --watch",
+    "lint": "eslint src --ext ts",
+    "test": "vitest run",
+    "package": "vsce package --no-dependencies",
+    "publish": "vsce publish --no-dependencies"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "socket.io-client": "^4.8.1",
+    "eventsource-parser": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.0.0",
+    "esbuild": "^0.24.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0"
+  }
+}

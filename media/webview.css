@@ -1,0 +1,30 @@
+/* Trivx WebView shared styles - loaded via webview URI */
+:root {
+  --trivx-brand: #F2613F;
+  --trivx-brand-light: #FF7F5F;
+  --trivx-brand-dark: #D94C2B;
+}
+
+body {
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+  color: var(--vscode-foreground);
+  background-color: var(--vscode-editor-background);
+  padding: 0;
+  margin: 0;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--trivx-brand);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+::selection {
+  background: var(--trivx-brand);
+  color: white;
+}
