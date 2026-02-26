@@ -34,13 +34,6 @@ export function registerPipelineCommands(
       );
       if (!selected) { return; }
 
-      const branch = await vscode.window.showInputBox({
-        prompt: 'Enter branch to run pipeline on',
-        value: 'main',
-        placeHolder: 'main',
-      });
-      if (!branch) { return; }
-
       try {
         await vscode.window.withProgress(
           {
@@ -49,7 +42,7 @@ export function registerPipelineCommands(
             cancellable: false,
           },
           async () => {
-            await workflowService.triggerRun(projectId, selected.workflowId, { branch });
+            await workflowService.triggerRun(selected.workflowId);
           }
         );
 
@@ -94,9 +87,11 @@ export function registerPipelineCommands(
       outputChannel.appendLine(`---`);
 
       try {
-        const logs = await workflowService.getRunLogs(projectId, selected.runId);
-        for (const line of logs) {
-          outputChannel.appendLine(line);
+        const logs = await workflowService.getPipelineLogs(selected.runId);
+        if (logs) {
+          outputChannel.appendLine(logs);
+        } else {
+          outputChannel.appendLine('No logs available.');
         }
       } catch (error: any) {
         outputChannel.appendLine(`Error loading logs: ${error.message}`);

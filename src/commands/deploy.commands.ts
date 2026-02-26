@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { DeployService } from '../services/deploy.service';
 import { ProjectService } from '../services/project.service';
 import { OrganizationService } from '../services/organization.service';
+import { AuthService } from '../services/auth.service';
 import { COMMANDS } from '../constants';
 
 export function registerDeployCommands(
@@ -14,6 +15,13 @@ export function registerDeployCommands(
       const orgId = orgService.getCurrentOrgId();
       if (!orgId) {
         vscode.window.showWarningMessage('Please select an organization first.');
+        return;
+      }
+
+      const authService = AuthService.getInstance();
+      const user = authService.currentUser;
+      if (!user) {
+        vscode.window.showWarningMessage('Please login first.');
         return;
       }
 
@@ -78,17 +86,14 @@ export function registerDeployCommands(
           async (progress) => {
             progress.report({ message: 'Initiating deployment...' });
 
-            const deployment = await projectService.deploy(orgId, projectId!, {
+            const executionId = await deployService.deploy(projectId!, {
+              userId: user.id,
+              organizationId: orgId,
               branch,
               environment: environment.value,
             });
 
-            progress.report({ message: 'Connecting to deployment stream...' });
-
-            // Connect to Socket.IO for real-time updates
-            deployService.connectToDeployment(deployment.id);
-
-            return deployment;
+            return executionId;
           }
         );
 
@@ -99,8 +104,8 @@ export function registerDeployCommands(
     }),
 
     vscode.commands.registerCommand(COMMANDS.VIEW_DEPLOY_LOGS, async () => {
-      const deployService = DeployService.getInstance();
-      deployService.showLogOutput();
+      // Show the Trivx Deployments output channel
+      vscode.commands.executeCommand('workbench.action.output.show', { id: 'Trivx Deployments' });
     })
   );
 }

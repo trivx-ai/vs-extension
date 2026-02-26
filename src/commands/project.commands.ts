@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { ProjectService } from '../services/project.service';
 import { OrganizationService } from '../services/organization.service';
+import { AuthService } from '../services/auth.service';
 import { COMMANDS } from '../constants';
 
 export function registerProjectCommands(
@@ -14,6 +15,13 @@ export function registerProjectCommands(
       if (!orgId) {
         vscode.window.showWarningMessage('Please select an organization first.');
         await vscode.commands.executeCommand(COMMANDS.SWITCH_ORG);
+        return;
+      }
+
+      const authService = AuthService.getInstance();
+      const user = authService.currentUser;
+      if (!user) {
+        vscode.window.showWarningMessage('Please login first.');
         return;
       }
 
@@ -37,7 +45,7 @@ export function registerProjectCommands(
       if (!name) { return; }
 
       // Step 2: Select GitHub Installation
-      const installations = await projectService.listGitHubInstallations(orgId);
+      const installations = await projectService.listInstallations(user.id);
       if (installations.length === 0) {
         const openSetup = await vscode.window.showWarningMessage(
           'No GitHub installations found. Please install the Trivx GitHub App first.',
@@ -50,7 +58,7 @@ export function registerProjectCommands(
       }
 
       const installation = await vscode.window.showQuickPick(
-        installations.map(i => ({
+        installations.map((i) => ({
           label: `$(github) ${i.accountLogin}`,
           description: i.accountType,
           installationId: i.installationId,
@@ -60,26 +68,21 @@ export function registerProjectCommands(
       if (!installation) { return; }
 
       // Step 3: Select repository
-      const repos = await projectService.listGitHubRepos(orgId, installation.installationId);
+      const repos = await projectService.listRepos(installation.installationId);
       const repo = await vscode.window.showQuickPick(
-        repos.map(r => ({
-          label: `$(repo) ${r.fullName}`,
+        repos.map((r) => ({
+          label: `$(repo) ${r.full_name}`,
           description: r.private ? 'Private' : 'Public',
           detail: r.description || '',
           repoId: r.id,
-          fullName: r.fullName,
-          defaultBranch: r.defaultBranch,
-          githubUrl: r.htmlUrl,
+          fullName: r.full_name,
+          defaultBranch: r.default_branch,
+          githubUrl: r.html_url,
+          isPrivate: r.private,
         })),
         { placeHolder: 'Select repository' }
       );
       if (!repo) { return; }
-
-      // Step 4: Select framework
-      const framework = await vscode.window.showQuickPick(
-        ['Next.js', 'React', 'Vue', 'Angular', 'Node.js', 'Python', 'Go', 'Rust', 'Other'],
-        { placeHolder: 'Select framework (optional)' }
-      );
 
       try {
         await vscode.window.withProgress(
@@ -89,15 +92,24 @@ export function registerProjectCommands(
             cancellable: false,
           },
           async () => {
-            await projectService.createProject(orgId, {
+            // Create project first
+            const project = await projectService.createProject({
               name: name.trim(),
-              installationId: installation.installationId,
-              repositoryFullName: repo.fullName,
-              repositoryId: repo.repoId.toString(),
-              defaultBranch: repo.defaultBranch || 'main',
-              framework: framework || undefined,
-              githubUrl: repo.githubUrl,
+              organizationId: orgId,
             });
+
+            // Then link the repository
+            if (project) {
+              await projectService.linkRepository(project.id, {
+                installationId: installation.installationId,
+                repositoryId: repo.repoId,
+                repositoryName: repo.fullName.split('/')[1] || repo.fullName,
+                repositoryFullName: repo.fullName,
+                githubUrl: repo.githubUrl,
+                defaultBranch: repo.defaultBranch || 'main',
+                isPrivate: repo.isPrivate || false,
+              });
+            }
           }
         );
 
@@ -141,7 +153,7 @@ export function registerProjectCommands(
       );
 
       if (selected) {
-        projectService.setCurrentProjectId(selected.projectId);
+        await projectService.setCurrentProject(selected.projectId);
         vscode.window.showInformationMessage(`Switched to project: ${selected.label.replace('$(package) ', '')}`);
         refreshCallback();
       }

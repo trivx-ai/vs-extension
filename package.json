@@ -156,32 +156,38 @@
         {
           "id": "trivx-welcome",
           "name": "Welcome",
-          "when": "!trivx.isLoggedIn"
+          "when": "!trivx.isLoggedIn",
+          "icon": "$(info)"
         },
         {
           "id": "trivx-organization",
           "name": "Organization",
-          "when": "trivx.isLoggedIn"
+          "when": "trivx.isLoggedIn",
+          "icon": "$(organization)"
         },
         {
           "id": "trivx-projects",
           "name": "Projects",
-          "when": "trivx.isLoggedIn"
+          "when": "trivx.isLoggedIn",
+          "icon": "$(project)"
         },
         {
           "id": "trivx-deployments",
           "name": "Deployments",
-          "when": "trivx.isLoggedIn"
+          "when": "trivx.isLoggedIn",
+          "icon": "$(rocket)"
         },
         {
           "id": "trivx-pipelines",
           "name": "Pipelines",
-          "when": "trivx.isLoggedIn"
+          "when": "trivx.isLoggedIn",
+          "icon": "$(circuit-board)"
         },
         {
           "id": "trivx-monitoring",
           "name": "Monitoring",
-          "when": "trivx.isLoggedIn"
+          "when": "trivx.isLoggedIn",
+          "icon": "$(pulse)"
         }
       ]
     },
@@ -208,7 +214,8 @@
         {
           "command": "trivx.deploy",
           "when": "viewItem == project",
-          "group": "inline"
+          "group": "inline",
+          "icon": "$(rocket)"
         }
       ],
       "commandPalette": [

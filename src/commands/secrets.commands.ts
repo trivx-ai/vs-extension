@@ -20,7 +20,7 @@ export function registerSecretsCommands(context: vscode.ExtensionContext): void 
       // Pick or create environment group
       const items: vscode.QuickPickItem[] = groups.map(g => ({
         label: `$(folder) ${g.name}`,
-        description: `${g.environment} • ${g.secretCount || 0} secrets`,
+        description: `${g.environment || 'default'}`,
       }));
       items.push({ label: '$(add) Create New Environment Group', description: '' });
 
@@ -62,7 +62,6 @@ export function registerSecretsCommands(context: vscode.ExtensionContext): void 
         [
           { label: '$(add) Add Secret', value: 'add' },
           { label: '$(eye) View Secrets', value: 'view' },
-          { label: '$(trash) Delete Secret', value: 'delete' },
         ],
         { placeHolder: `Manage secrets for "${groupName}"` }
       );
@@ -85,7 +84,7 @@ export function registerSecretsCommands(context: vscode.ExtensionContext): void 
           if (value === undefined) { return; }
 
           try {
-            await secretsService.createSecret(projectId, group.id, { key: key.trim(), value });
+            await secretsService.createSecrets(projectId, group.id, [{ key: key.trim(), value }]);
             vscode.window.showInformationMessage(`Secret "${key}" added.`);
           } catch (error: any) {
             vscode.window.showErrorMessage(`Failed to add secret: ${error.message}`);
@@ -103,33 +102,6 @@ export function registerSecretsCommands(context: vscode.ExtensionContext): void 
             language: 'properties',
           });
           vscode.window.showTextDocument(doc);
-          break;
-        }
-
-        case 'delete': {
-          if (secrets.length === 0) {
-            vscode.window.showInformationMessage('No secrets to delete.');
-            return;
-          }
-          const toDelete = await vscode.window.showQuickPick(
-            secrets.map(s => ({ label: s.key, secretId: s.id })),
-            { placeHolder: 'Select secret to delete' }
-          );
-          if (!toDelete) { return; }
-
-          const confirm = await vscode.window.showWarningMessage(
-            `Delete secret "${toDelete.label}"?`,
-            { modal: true },
-            'Delete'
-          );
-          if (confirm === 'Delete') {
-            try {
-              await secretsService.deleteSecret(projectId, group.id, toDelete.secretId);
-              vscode.window.showInformationMessage(`Secret "${toDelete.label}" deleted.`);
-            } catch (error: any) {
-              vscode.window.showErrorMessage(`Failed to delete: ${error.message}`);
-            }
-          }
           break;
         }
       }

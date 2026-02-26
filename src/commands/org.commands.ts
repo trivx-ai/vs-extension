@@ -16,9 +16,14 @@ export function registerOrgCommands(
       }
 
       const orgService = OrganizationService.getInstance();
+      const user = authService.currentUser;
+      if (!user) {
+        vscode.window.showWarningMessage('User info not available. Please re-login.');
+        return;
+      }
 
       try {
-        const orgs = await orgService.listOrganizations();
+        const orgs = await orgService.listOrganizations(user.id);
 
         if (orgs.length === 0) {
           const create = await vscode.window.showInformationMessage(
@@ -36,14 +41,14 @@ export function registerOrgCommands(
             label: `$(home) ${o.name}`,
             description: o.plan,
             detail: o.adminEmail,
-            orgId: o.id,
+            org: o,
           })),
           { placeHolder: 'Select organization' }
         );
 
         if (selected) {
-          orgService.setCurrentOrgId(selected.orgId);
-          vscode.window.showInformationMessage(`Switched to: ${selected.label.replace('$(home) ', '')}`);
+          await orgService.setCurrentOrg(selected.org);
+          vscode.window.showInformationMessage(`Switched to: ${selected.org.name}`);
           refreshCallback();
         }
       } catch (error: any) {

@@ -1,5 +1,8 @@
 import * as vscode from 'vscode';
 import { AIService, StreamCallbacks } from '../services/ai.service';
+import { AuthService } from '../services/auth.service';
+import { OrganizationService } from '../services/organization.service';
+import { ProjectService } from '../services/project.service';
 import { COMMANDS } from '../constants';
 
 export function registerAICommands(
@@ -26,6 +29,16 @@ export function registerAICommands(
         return;
       }
 
+      const authService = AuthService.getInstance();
+      const user = authService.currentUser;
+      if (!user) {
+        vscode.window.showWarningMessage('Please login first.');
+        return;
+      }
+
+      const orgId = OrganizationService.getInstance().getCurrentOrgId() || '';
+      const projectId = ProjectService.getInstance().getCurrentProjectId();
+
       const action = await vscode.window.showQuickPick(
         [
           { label: '$(lightbulb) Explain Code', value: 'explain', prompt: 'Explain this code:\n\n' },
@@ -45,30 +58,43 @@ export function registerAICommands(
       const language = editor.document.languageId;
       const message = `${action.prompt}\`\`\`${language}\n// File: ${fileName}\n${selectedText}\n\`\`\``;
 
-      const responseChunks: string[] = [];
       const outputChannel = vscode.window.createOutputChannel('Trivx AI');
       outputChannel.show(true);
       outputChannel.appendLine(`=== Trivx AI: ${action.label.replace(/\$\([^)]+\)\s*/, '')} ===\n`);
 
       try {
-        await aiService.streamMessage(message, undefined, {
-          onToken: (token: string) => {
-            responseChunks.push(token);
-            outputChannel.append(token);
+        await aiService.streamMessage(
+          {
+            message,
+            userId: user.id,
+            organizationId: orgId,
+            projectId,
           },
-          onComplete: (fullResponse: string) => {
-            outputChannel.appendLine('\n\n=== End ===');
-          },
-          onError: (error: Error) => {
-            outputChannel.appendLine(`\n\nError: ${error.message}`);
-          },
-        });
+          {
+            onChunk: (text: string) => {
+              outputChannel.append(text);
+            },
+            onDone: () => {
+              outputChannel.appendLine('\n\n=== End ===');
+            },
+            onError: (error: string) => {
+              outputChannel.appendLine(`\n\nError: ${error}`);
+            },
+          }
+        );
       } catch (error: any) {
         vscode.window.showErrorMessage(`AI request failed: ${error.message}`);
       }
     }),
 
     vscode.commands.registerCommand('trivx.aiQuickQuestion', async () => {
+      const authService = AuthService.getInstance();
+      const user = authService.currentUser;
+      if (!user) {
+        vscode.window.showWarningMessage('Please login first.');
+        return;
+      }
+
       const question = await vscode.window.showInputBox({
         prompt: 'Ask Trivx AI anything about your project or DevOps',
         placeHolder: 'How do I optimize my deployment pipeline?',
@@ -77,6 +103,7 @@ export function registerAICommands(
 
       if (!question) { return; }
 
+      const orgId = OrganizationService.getInstance().getCurrentOrgId() || '';
       const aiService = AIService.getInstance();
       const outputChannel = vscode.window.createOutputChannel('Trivx AI');
       outputChannel.show(true);
@@ -84,17 +111,24 @@ export function registerAICommands(
       outputChannel.appendLine('A: ');
 
       try {
-        await aiService.streamMessage(question, undefined, {
-          onToken: (token: string) => {
-            outputChannel.append(token);
+        await aiService.streamMessage(
+          {
+            message: question,
+            userId: user.id,
+            organizationId: orgId,
           },
-          onComplete: () => {
-            outputChannel.appendLine('\n');
-          },
-          onError: (error: Error) => {
-            outputChannel.appendLine(`\nError: ${error.message}`);
-          },
-        });
+          {
+            onChunk: (text: string) => {
+              outputChannel.append(text);
+            },
+            onDone: () => {
+              outputChannel.appendLine('\n');
+            },
+            onError: (error: string) => {
+              outputChannel.appendLine(`\nError: ${error}`);
+            },
+          }
+        );
       } catch (error: any) {
         vscode.window.showErrorMessage(`AI request failed: ${error.message}`);
       }
