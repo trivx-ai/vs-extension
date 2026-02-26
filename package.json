@@ -265,6 +265,11 @@
           "default": "http://localhost:3000",
           "description": "Trivx API Gateway base URL. This is the only URL you need to change for production — set it to your deployed gateway (e.g. https://api.yourdomain.com). All HTTP API calls and Socket.IO (deployment updates) route through this single endpoint."
         },
+        "trivx.frontendUrl": {
+          "type": "string",
+          "default": "http://localhost:3000",
+          "description": "Trivx web frontend URL. Used for the 'Login via Browser' deep-link flow. For production, set this to your frontend URL (e.g. https://app.yourdomain.com)."
+        },
         "trivx.wsUrl": {
           "type": "string",
           "default": "",

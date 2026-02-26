@@ -53,6 +53,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   BillingService.initialize();
   NotificationService.initialize();
 
+  // ─── Register URI Handler (deep-link auth callbacks) ───────────────────────
+  context.subscriptions.push(
+    vscode.window.registerUriHandler(authService)
+  );
+
   // ─── Set Initial Context ───────────────────────────────────────────────────
   await vscode.commands.executeCommand('setContext', CONTEXT_KEYS.IS_LOGGED_IN, false);
   await vscode.commands.executeCommand('setContext', CONTEXT_KEYS.HAS_ORGANIZATION, false);

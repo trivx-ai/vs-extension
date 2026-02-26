@@ -87,6 +87,7 @@ export const API_ROUTES = {
   // Auth
   AUTH_USER: (id: string) => `/api/v1/auth/auth/user/${id}`,
   AUTH_VALIDATE: '/api/v1/auth/auth/validate',
+  AUTH_EXTENSION_TOKEN: '/api/v1/auth/auth/extension/token',
   AUTH_SESSIONS: (userId: string) => `/api/v1/auth/auth/sessions/${userId}`,
 
   // Organization

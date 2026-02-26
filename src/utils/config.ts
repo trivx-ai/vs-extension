@@ -3,6 +3,8 @@ import * as vscode from 'vscode';
 export interface TrivxConfig {
   /** Base URL of the Trivx API Gateway. All HTTP + WebSocket traffic flows through here. */
   apiBaseUrl: string;
+  /** Base URL of the Trivx web frontend. Used for browser-based auth deep links. */
+  frontendUrl: string;
   /** @deprecated Socket.IO now routes through apiBaseUrl/api/v1/infra/socket.io. Kept for legacy overrides. */
   wsUrl: string;
   notificationWsUrl: string;
@@ -17,6 +19,7 @@ export function getConfig(): TrivxConfig {
   const apiBaseUrl = config.get<string>('apiBaseUrl', 'http://localhost:3000');
   return {
     apiBaseUrl,
+    frontendUrl: config.get<string>('frontendUrl', 'http://localhost:3000'),
     // wsUrl is kept for manual overrides, but Socket.IO now goes through apiBaseUrl.
     wsUrl: config.get<string>('wsUrl', apiBaseUrl),
     notificationWsUrl: config.get<string>('notificationWsUrl', apiBaseUrl.replace(/^http/, 'ws')),

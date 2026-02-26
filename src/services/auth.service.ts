@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
+import * as crypto from 'crypto';
 import { apiClient } from './api-client';
-import { SECRET_KEYS, STATE_KEYS, CONTEXT_KEYS, API_ROUTES } from '../constants';
+import { SECRET_KEYS, STATE_KEYS, CONTEXT_KEYS, API_ROUTES, EXTENSION_ID } from '../constants';
 import { logger } from '../utils/logger';
 import { AuthError } from '../utils/errors';
 import { getConfig } from '../utils/config';
@@ -16,13 +17,19 @@ export interface User {
   createdAt: string;
 }
 
-export class AuthService {
+export class AuthService implements vscode.UriHandler {
   private static instance: AuthService;
   private context: vscode.ExtensionContext;
   private _isLoggedIn: boolean = false;
   private _currentUser: User | null = null;
   private _onAuthStateChanged = new vscode.EventEmitter<boolean>();
   public readonly onAuthStateChanged = this._onAuthStateChanged.event;
+
+  // Deep-link auth state
+  private pendingAuthState: string | null = null;
+  private pendingAuthResolve: (() => void) | null = null;
+  private pendingAuthReject: ((err: Error) => void) | null = null;
+  private pendingAuthTimeout: ReturnType<typeof setTimeout> | null = null;
 
   private constructor(context: vscode.ExtensionContext) {
     this.context = context;
@@ -50,6 +57,67 @@ export class AuthService {
     return this._currentUser;
   }
 
+  // ─── URI Handler (deep-link callback) ────────────────────────────────────
+
+  /**
+   * Called by VS Code when a `vscode://trivx.trivx-ai/...` URI is opened.
+   */
+  handleUri(uri: vscode.Uri): void {
+    logger.info(`URI handler invoked: ${uri.toString()}`);
+
+    if (uri.path === '/auth-callback') {
+      this.handleAuthCallback(uri);
+    } else {
+      logger.warn(`Unknown URI path: ${uri.path}`);
+    }
+  }
+
+  private async handleAuthCallback(uri: vscode.Uri): Promise<void> {
+    const params = new URLSearchParams(uri.query);
+    const token = params.get('token');
+    const state = params.get('state');
+    const retry = params.get('retry');
+
+    // On retry without token, just notify the user
+    if (retry && !token) {
+      vscode.window.showWarningMessage(
+        'Trivx: Token not included in retry. Please try "Login via Browser" again.'
+      );
+      return;
+    }
+
+    // Validate state matches what we generated
+    if (!state || state !== this.pendingAuthState) {
+      logger.warn('Auth callback state mismatch');
+      vscode.window.showErrorMessage(
+        'Trivx: Authentication failed — state mismatch. Please try again.'
+      );
+      this.rejectPendingAuth(new Error('State mismatch'));
+      return;
+    }
+
+    if (!token) {
+      this.rejectPendingAuth(new Error('No token received'));
+      vscode.window.showErrorMessage('Trivx: No token received from browser.');
+      return;
+    }
+
+    // Capture resolve/reject before clearing
+    const resolve = this.pendingAuthResolve;
+    const reject = this.pendingAuthReject;
+    this.clearPendingAuth();
+
+    try {
+      await this.completeLogin(token);
+      resolve?.();
+    } catch (error: any) {
+      reject?.(error);
+      vscode.window.showErrorMessage(`Trivx: Login failed — ${error.message}`);
+    }
+  }
+
+  // ─── Session Restore ─────────────────────────────────────────────────────
+
   /**
    * Attempt to restore session from stored tokens on activation
    */
@@ -63,19 +131,19 @@ export class AuthService {
 
       apiClient.setToken(token);
 
-      // Validate token by fetching user
+      // Validate token by fetching user profile
       const userId = await this.context.secrets.get(SECRET_KEYS.USER_ID);
       if (userId) {
         try {
           const response = await apiClient.get<any>(API_ROUTES.AUTH_USER(userId));
-          this._currentUser = response.user || response;
+          this._currentUser = this.normalizeUser(response);
           this._isLoggedIn = true;
           await this.updateContextKeys();
           this._onAuthStateChanged.fire(true);
           logger.info(`Session restored for ${this._currentUser?.email}`);
           return true;
         } catch {
-          logger.warn('Stored token is invalid, clearing session');
+          logger.warn('Stored token is invalid or expired, clearing session');
           await this.clearStoredAuth();
           return false;
         }
@@ -88,33 +156,101 @@ export class AuthService {
     }
   }
 
+  // ─── Login Entry Point ───────────────────────────────────────────────────
+
   /**
-   * Login via token input (user provides API token or JWT)
+   * Main login flow — shows QuickPick with available methods
    */
   async login(): Promise<void> {
     const choice = await vscode.window.showQuickPick(
       [
-        { label: '$(key) Enter API Token', description: 'Paste your Trivx API token', value: 'token' },
-        { label: '$(globe) Login via Browser', description: 'Open browser to login', value: 'browser' },
+        {
+          label: '$(globe) Login via Browser',
+          description: 'Recommended — sign in with your browser',
+          value: 'browser',
+        },
+        {
+          label: '$(key) Enter API Token',
+          description: 'Paste a Trivx extension token manually',
+          value: 'token',
+        },
       ],
-      { placeHolder: 'Choose login method', title: 'Trivx AI - Login' }
+      { placeHolder: 'Choose login method', title: 'Trivx AI — Login' }
     );
 
     if (!choice) { return; }
 
-    if (choice.value === 'token') {
-      await this.loginWithToken();
-    } else {
+    if (choice.value === 'browser') {
       await this.loginViaBrowser();
+    } else {
+      await this.loginWithToken();
     }
   }
 
+  // ─── Browser-Based Login (deep link) ─────────────────────────────────────
+
+  /**
+   * Opens the frontend auth page in the user's default browser.
+   * After sign-in, the page redirects to `vscode://trivx.trivx-ai/auth-callback`
+   * with the extension JWT, which is caught by handleUri().
+   */
+  private async loginViaBrowser(): Promise<void> {
+    const config = getConfig();
+    const state = crypto.randomUUID();
+    this.pendingAuthState = state;
+
+    const authUrl = `${config.frontendUrl}/extension/auth?state=${encodeURIComponent(state)}`;
+
+    logger.info(`Opening browser for auth: ${authUrl}`);
+    await vscode.env.openExternal(vscode.Uri.parse(authUrl));
+
+    // Show progress while waiting for the callback
+    try {
+      await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: 'Trivx AI: Waiting for browser sign-in...',
+          cancellable: true,
+        },
+        async (_progress, cancellationToken) => {
+          return new Promise<void>((resolve, reject) => {
+            this.pendingAuthResolve = resolve;
+            this.pendingAuthReject = reject;
+
+            // Timeout after 5 minutes
+            this.pendingAuthTimeout = setTimeout(() => {
+              if (this.pendingAuthState === state) {
+                this.clearPendingAuth();
+                reject(new Error('Login timed out. Please try again.'));
+              }
+            }, 5 * 60 * 1000);
+
+            // Handle cancellation
+            cancellationToken.onCancellationRequested(() => {
+              this.clearPendingAuth();
+              reject(new Error('Login cancelled'));
+            });
+          });
+        }
+      );
+    } catch (error: any) {
+      if (error?.message !== 'Login cancelled') {
+        vscode.window.showErrorMessage(`Trivx AI: ${error?.message || 'Login failed'}`);
+      }
+    }
+  }
+
+  // ─── Token-Based Login (manual paste) ────────────────────────────────────
+
+  /**
+   * Prompts the user to paste an extension token directly.
+   */
   private async loginWithToken(): Promise<void> {
     const token = await vscode.window.showInputBox({
-      prompt: 'Enter your Trivx API token',
+      prompt: 'Enter your Trivx extension token',
       password: true,
-      placeHolder: 'Paste your JWT token here',
-      title: 'Trivx AI - API Token',
+      placeHolder: 'Paste your token here',
+      title: 'Trivx AI — Extension Token',
       validateInput: (value) => {
         if (!value || value.trim().length < 10) {
           return 'Please enter a valid token';
@@ -128,88 +264,63 @@ export class AuthService {
     await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
-        title: 'Trivx AI: Logging in...',
+        title: 'Trivx AI: Verifying token...',
         cancellable: false,
       },
       async () => {
-        apiClient.setToken(token.trim());
-
-        // Validate by making an API call
-        try {
-          const response = await apiClient.post<any>(API_ROUTES.AUTH_VALIDATE, { token: token.trim() });
-          const user = response.user || response;
-
-          this._currentUser = user;
-          this._isLoggedIn = true;
-
-          // Store credentials
-          await this.context.secrets.store(SECRET_KEYS.AUTH_TOKEN, token.trim());
-          await this.context.secrets.store(SECRET_KEYS.USER_ID, user.id || user.clerkId);
-
-          // Store user info in global state
-          await this.context.globalState.update(STATE_KEYS.USER_EMAIL, user.email);
-          await this.context.globalState.update(STATE_KEYS.USER_NAME, user.name || user.email);
-
-          await this.updateContextKeys();
-          this._onAuthStateChanged.fire(true);
-
-          vscode.window.showInformationMessage(`Trivx AI: Logged in as ${user.email}`);
-          logger.info(`Logged in as ${user.email}`);
-        } catch (error: any) {
-          apiClient.clearToken();
-          // If validate fails, try fetching user with clerkId pattern
-          try {
-            // Try using token directly and fetching a generic user endpoint
-            const userId = await vscode.window.showInputBox({
-              prompt: 'Enter your Trivx User ID or Clerk ID',
-              placeHolder: 'user_xxxxx or cuid',
-              title: 'Trivx AI - User ID',
-            });
-
-            if (!userId) { throw error; }
-
-            apiClient.setToken(token.trim());
-            const userResponse = await apiClient.get<any>(API_ROUTES.AUTH_USER(userId));
-            const user = userResponse.user || userResponse;
-
-            this._currentUser = user;
-            this._isLoggedIn = true;
-
-            await this.context.secrets.store(SECRET_KEYS.AUTH_TOKEN, token.trim());
-            await this.context.secrets.store(SECRET_KEYS.USER_ID, userId);
-            await this.context.globalState.update(STATE_KEYS.USER_EMAIL, user.email);
-            await this.context.globalState.update(STATE_KEYS.USER_NAME, user.name || user.email);
-
-            await this.updateContextKeys();
-            this._onAuthStateChanged.fire(true);
-
-            vscode.window.showInformationMessage(`Trivx AI: Logged in as ${user.email}`);
-            logger.info(`Logged in as ${user.email}`);
-          } catch {
-            vscode.window.showErrorMessage('Trivx AI: Invalid token or user ID. Please check your credentials.');
-            logger.error('Login failed', error);
-            throw new AuthError('Login failed');
-          }
-        }
+        await this.completeLogin(token.trim());
       }
     );
   }
 
-  private async loginViaBrowser(): Promise<void> {
-    const config = getConfig();
-    const loginUrl = `${config.apiBaseUrl.replace(/:\d+$/, '')}:3000/login`;
+  // ─── Shared Login Completion ─────────────────────────────────────────────
 
-    await vscode.env.openExternal(vscode.Uri.parse(loginUrl));
+  /**
+   * Finishes the login flow regardless of how the token was obtained.
+   */
+  private async completeLogin(token: string): Promise<void> {
+    apiClient.setToken(token);
 
-    vscode.window.showInformationMessage(
-      'Trivx AI: Complete login in your browser, then use "Enter API Token" to paste your token.',
-      'Enter Token'
-    ).then(async (selection) => {
-      if (selection === 'Enter Token') {
-        await this.loginWithToken();
+    try {
+      // Decode JWT payload to get userId (our extension JWTs embed it as `sub`)
+      const userId = this.decodeTokenUserId(token);
+
+      let user: User;
+
+      if (userId) {
+        // Fetch full user profile via the auth-service
+        const response = await apiClient.get<any>(API_ROUTES.AUTH_USER(userId));
+        user = this.normalizeUser(response);
+      } else {
+        // Fallback: validate token and extract user info
+        const response = await apiClient.post<any>(API_ROUTES.AUTH_VALIDATE, { token });
+        user = this.normalizeUser(response);
       }
-    });
+
+      this._currentUser = user;
+      this._isLoggedIn = true;
+
+      // Persist credentials
+      await this.context.secrets.store(SECRET_KEYS.AUTH_TOKEN, token);
+      await this.context.secrets.store(SECRET_KEYS.USER_ID, user.id || user.clerkId);
+
+      // Store user info in global state
+      await this.context.globalState.update(STATE_KEYS.USER_EMAIL, user.email);
+      await this.context.globalState.update(STATE_KEYS.USER_NAME, user.name || user.email);
+
+      await this.updateContextKeys();
+      this._onAuthStateChanged.fire(true);
+
+      vscode.window.showInformationMessage(`Trivx AI: Logged in as ${user.email}`);
+      logger.info(`Logged in as ${user.email}`);
+    } catch (error: any) {
+      apiClient.clearToken();
+      logger.error('Login failed', error);
+      throw new AuthError(error.message || 'Login failed — invalid token');
+    }
   }
+
+  // ─── Logout ──────────────────────────────────────────────────────────────
 
   async logout(): Promise<void> {
     this._currentUser = null;
@@ -224,8 +335,59 @@ export class AuthService {
     logger.info('Logged out');
   }
 
+  // ─── Token Access ────────────────────────────────────────────────────────
+
   async getToken(): Promise<string | null> {
     return await this.context.secrets.get(SECRET_KEYS.AUTH_TOKEN) || null;
+  }
+
+  // ─── Private Helpers ─────────────────────────────────────────────────────
+
+  /**
+   * Decode the JWT payload (without verification) to extract userId.
+   */
+  private decodeTokenUserId(token: string): string | null {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) { return null; }
+      const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString());
+      return payload.sub || payload.userId || null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Normalize various response shapes into our User interface
+   */
+  private normalizeUser(response: any): User {
+    const raw = response.user || response;
+    return {
+      id: raw.id || raw.userId || '',
+      clerkId: raw.clerkId || '',
+      email: raw.email || '',
+      name: raw.name,
+      profileImageUrl: raw.profileImageUrl,
+      role: raw.role || 'USER',
+      isActive: raw.isActive !== false,
+      createdAt: raw.createdAt || new Date().toISOString(),
+    };
+  }
+
+  private clearPendingAuth(): void {
+    this.pendingAuthState = null;
+    if (this.pendingAuthTimeout) {
+      clearTimeout(this.pendingAuthTimeout);
+      this.pendingAuthTimeout = null;
+    }
+  }
+
+  private rejectPendingAuth(error: Error): void {
+    const reject = this.pendingAuthReject;
+    this.clearPendingAuth();
+    this.pendingAuthReject = null;
+    this.pendingAuthResolve = null;
+    reject?.(error);
   }
 
   private async clearStoredAuth(): Promise<void> {
