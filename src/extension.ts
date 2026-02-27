@@ -288,19 +288,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       } catch (error: any) {
         vscode.window.showErrorMessage(`Analysis failed: ${error.message}`);
       }
+    }),
+
+    vscode.commands.registerCommand(COMMANDS.SWITCH_PROJECT, async () => {
+      await vscode.commands.executeCommand(COMMANDS.OPEN_PROJECT);
     })
   );
-
-  // ─── Restore Session ──────────────────────────────────────────────────────
-  try {
-    const restored = await authService.restoreSession();
-    if (restored) {
-      logger.info('Session restored on activation');
-      refreshAll();
-    }
-  } catch (error) {
-    logger.warn('Failed to restore session', error);
-  }
 
   // ─── Auth State Change Handler ─────────────────────────────────────────────
   context.subscriptions.push(
@@ -331,6 +324,17 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       }
     })
   );
+
+  // ─── Restore Session ──────────────────────────────────────────────────────
+  try {
+    const restored = await authService.restoreSession();
+    if (restored) {
+      logger.info('Session restored on activation');
+      // No need to refreshAll() here since the onAuthStateChanged handler will trigger it
+    }
+  } catch (error) {
+    logger.warn('Failed to restore session', error);
+  }
 
   // ─── Deploy event for progress view ────────────────────────────────────────
   context.subscriptions.push(

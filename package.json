@@ -52,6 +52,18 @@
         "icon": "$(organization)"
       },
       {
+        "command": "trivx.createOrg",
+        "title": "Create Organization",
+        "category": "Trivx",
+        "icon": "$(add)"
+      },
+      {
+        "command": "trivx.switchProject",
+        "title": "Switch Project",
+        "category": "Trivx",
+        "icon": "$(package)"
+      },
+      {
         "command": "trivx.createProject",
         "title": "Create Project",
         "category": "Trivx",

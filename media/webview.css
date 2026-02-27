@@ -1,33 +1,385 @@
-/* Trivx WebView shared styles - loaded via webview URI */
+/* ─── Trivx Extension Theme — Orange & Black ─────────────────────────── */
+
 :root {
-  --trivx-bg-primary: var(--vscode-editor-background);
-  --trivx-bg-secondary: var(--vscode-editorWidget-background);
-  --trivx-border: var(--vscode-widget-border);
-  --trivx-text: var(--vscode-foreground);
-  --trivx-text-muted: var(--vscode-descriptionForeground);
-  --trivx-accent: var(--vscode-focusBorder);
+  --trivx-bg: #0d0d0d;
+  --trivx-bg-secondary: #141414;
+  --trivx-bg-tertiary: #1a1a1a;
+  --trivx-border: #262626;
+  --trivx-border-subtle: #1f1f1f;
+  --trivx-text: #e0e0e0;
+  --trivx-text-muted: #888888;
+  --trivx-text-dim: #555555;
+  --trivx-orange: #F2613F;
+  --trivx-orange-hover: #ff7a5c;
+  --trivx-orange-dim: rgba(242, 97, 63, 0.15);
+  --trivx-orange-glow: rgba(242, 97, 63, 0.25);
+  --trivx-success: #34d399;
+  --trivx-error: #f87171;
+  --trivx-warning: #fbbf24;
+  --trivx-info: #60a5fa;
+  --trivx-radius: 8px;
+  --trivx-radius-sm: 4px;
+  --trivx-font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --trivx-mono: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', monospace;
+}
+
+/* ─── Base ────────────────────────────────────────────────────────── */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  font-family: var(--vscode-font-family);
-  font-size: var(--vscode-font-size);
-  color: var(--trivx-text);
-  background-color: var(--trivx-bg-primary);
-  padding: 0;
-  margin: 0;
+  font-family: var(--trivx-font);
+  font-size: 13px;
   line-height: 1.5;
+  color: var(--trivx-text);
+  background: var(--trivx-bg);
+  -webkit-font-smoothing: antialiased;
 }
 
+/* ─── Scrollbar ───────────────────────────────────────────────────── */
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--trivx-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--trivx-text-dim); }
+
+/* ─── Layout ──────────────────────────────────────────────────────── */
+
+.container {
+  max-width: 100%;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 100vh;
+}
+
+/* ─── Cards ───────────────────────────────────────────────────────── */
+
+.card {
+  background: var(--trivx-bg-secondary);
+  border: 1px solid var(--trivx-border);
+  border-radius: var(--trivx-radius);
+  padding: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.card:hover {
+  border-color: var(--trivx-orange-dim);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--trivx-border-subtle);
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--trivx-text);
+  letter-spacing: 0.3px;
+}
+
+.card-icon {
+  color: var(--trivx-orange);
+  font-size: 14px;
+}
+
+/* ─── Buttons ─────────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: none;
+  border-radius: var(--trivx-radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--trivx-font);
+}
+
+.btn-primary {
+  background: var(--trivx-orange);
+  color: #000;
+  box-shadow: 0 0 12px var(--trivx-orange-dim);
+}
+
+.btn-primary:hover {
+  background: var(--trivx-orange-hover);
+  box-shadow: 0 0 20px var(--trivx-orange-glow);
+}
+
+.btn-secondary {
+  background: var(--trivx-bg-tertiary);
+  color: var(--trivx-text);
+  border: 1px solid var(--trivx-border);
+}
+
+.btn-secondary:hover {
+  border-color: var(--trivx-orange);
+  color: var(--trivx-orange);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--trivx-text-muted);
+  padding: 5px 8px;
+}
+
+.btn-ghost:hover {
+  color: var(--trivx-orange);
+  background: var(--trivx-orange-dim);
+}
+
+/* ─── Inputs ──────────────────────────────────────────────────────── */
+
+input, textarea, select {
+  background: var(--trivx-bg);
+  border: 1px solid var(--trivx-border);
+  border-radius: var(--trivx-radius-sm);
+  padding: 8px 12px;
+  color: var(--trivx-text);
+  font-size: 13px;
+  font-family: var(--trivx-font);
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:focus, textarea:focus {
+  border-color: var(--trivx-orange);
+  box-shadow: 0 0 0 2px var(--trivx-orange-dim);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--trivx-text-dim);
+}
+
+/* ─── Chat Messages ───────────────────────────────────────────────── */
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message {
+  padding: 10px 14px;
+  border-radius: var(--trivx-radius);
+  max-width: 90%;
+  line-height: 1.6;
+  font-size: 13px;
+}
+
+.message-user {
+  background: var(--trivx-orange-dim);
+  border: 1px solid rgba(242, 97, 63, 0.25);
+  align-self: flex-end;
+  color: var(--trivx-text);
+}
+
+.message-assistant {
+  background: var(--trivx-bg-secondary);
+  border: 1px solid var(--trivx-border);
+  align-self: flex-start;
+}
+
+.message-role {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--trivx-orange);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ─── Chat Input Area ─────────────────────────────────────────────── */
+
+.chat-input-area {
+  padding: 12px;
+  border-top: 1px solid var(--trivx-border);
+  background: var(--trivx-bg-secondary);
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.chat-input-area textarea {
+  flex: 1;
+  resize: none;
+  min-height: 38px;
+  max-height: 120px;
+}
+
+.chat-input-area .btn-primary {
+  flex-shrink: 0;
+  height: 38px;
+  width: 38px;
+  padding: 0;
+  border-radius: var(--trivx-radius-sm);
+}
+
+/* ─── Tags / Badges ───────────────────────────────────────────────── */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.badge-success { background: rgba(52, 211, 153, 0.15); color: var(--trivx-success); }
+.badge-error { background: rgba(248, 113, 113, 0.15); color: var(--trivx-error); }
+.badge-warning { background: rgba(251, 191, 36, 0.15); color: var(--trivx-warning); }
+.badge-info { background: rgba(96, 165, 250, 0.15); color: var(--trivx-info); }
+.badge-orange { background: var(--trivx-orange-dim); color: var(--trivx-orange); }
+
+/* ─── Code Blocks ─────────────────────────────────────────────────── */
+
+code {
+  font-family: var(--trivx-mono);
+  font-size: 12px;
+  background: var(--trivx-bg-tertiary);
+  padding: 2px 5px;
+  border-radius: 3px;
+  color: var(--trivx-orange);
+}
+
+pre {
+  background: var(--trivx-bg);
+  border: 1px solid var(--trivx-border);
+  border-radius: var(--trivx-radius-sm);
+  padding: 12px;
+  overflow-x: auto;
+  margin: 8px 0;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+  color: var(--trivx-text);
+}
+
+/* ─── Status Indicators ───────────────────────────────────────────── */
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.active { background: var(--trivx-success); }
+.status-dot.error { background: var(--trivx-error); }
+.status-dot.pending { background: var(--trivx-warning); }
+
+/* ─── Empty State ─────────────────────────────────────────────────── */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px;
+  color: var(--trivx-text-muted);
+  text-align: center;
+}
+
+.empty-state .icon {
+  font-size: 28px;
+  color: var(--trivx-text-dim);
+  margin-bottom: 4px;
+}
+
+/* ─── Animations ──────────────────────────────────────────────────── */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px var(--trivx-orange-dim); }
+  50% { box-shadow: 0 0 16px var(--trivx-orange-glow); }
+}
+
+.fade-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ─── Loading ─────────────────────────────────────────────────────── */
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--trivx-border);
+  border-top-color: var(--trivx-orange);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Links ───────────────────────────────────────────────────────── */
+
 a {
-  color: var(--vscode-textLink-foreground);
+  color: var(--trivx-orange);
   text-decoration: none;
 }
 
 a:hover {
+  color: var(--trivx-orange-hover);
   text-decoration: underline;
 }
 
-::selection {
-  background: var(--vscode-editor-selectionBackground);
-  color: var(--vscode-editor-selectionForeground);
+/* ─── Tables ──────────────────────────────────────────────────────── */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+th, td {
+  padding: 6px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--trivx-border-subtle);
+}
+
+th {
+  color: var(--trivx-text-muted);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
