@@ -1,6 +1,6 @@
 {
   "name": "trivx-ai",
-  "displayName": "Trivx AI - DevOps Platform",
+  "displayName": "Trivx AI - DevOps Copilot",
   "description": "AI-powered DevOps platform in your editor. Deploy, monitor, and manage infrastructure without leaving VS Code.",
   "version": "1.0.0",
   "publisher": "trivx",
@@ -194,7 +194,7 @@
     "viewsWelcome": [
       {
         "view": "trivx-welcome",
-        "contents": "Welcome to Trivx AI!\n\nDeploy, monitor, and manage your applications with AI-powered DevOps — right from your editor.\n\n[Login to Trivx](command:trivx.login)\n\nNew to Trivx? [Sign up](https://app.trivx.in/signup)"
+        "contents": "Welcome to Trivx AI!\n\nDeploy, monitor, and manage your applications with AI-powered DevOps — right from your editor.\n\n[Login to Trivx](command:trivx.login)\n\nNew to Trivx? [Sign up](http://localhost:3000/signup)"
       }
     ],
     "menus": {
@@ -262,12 +262,12 @@
       "properties": {
         "trivx.apiBaseUrl": {
           "type": "string",
-          "default": "http://localhost:3000",
+          "default": "http://localhost:5000",
           "description": "Trivx API Gateway base URL. This is the only URL you need to change for production — set it to your deployed gateway (e.g. https://api.yourdomain.com). All HTTP API calls and Socket.IO (deployment updates) route through this single endpoint."
         },
         "trivx.frontendUrl": {
           "type": "string",
-          "default": "http://localhost:3001",
+          "default": "http://localhost:3000",
           "description": "Trivx web frontend URL. Used for the 'Login via Browser' deep-link flow. For production, set this to your frontend URL (e.g. https://app.yourdomain.com)."
         },
         "trivx.wsUrl": {

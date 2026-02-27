@@ -16,7 +16,7 @@ export interface TrivxConfig {
 
 export function getConfig(): TrivxConfig {
   const config = vscode.workspace.getConfiguration('trivx');
-  const apiBaseUrl = config.get<string>('apiBaseUrl', 'http://localhost:3000');
+  const apiBaseUrl = config.get<string>('apiBaseUrl', 'http://localhost:5000');
   return {
     apiBaseUrl,
     frontendUrl: config.get<string>('frontendUrl', 'http://localhost:3000'),
