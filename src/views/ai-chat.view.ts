@@ -159,7 +159,7 @@ export class AIChatPanel {
       .map(
         (m) =>
           `<div class="message ${m.role}">
-            <div class="message-role">${m.role === 'user' ? 'You' : 'Trivx AI'}</div>
+            <div class="message-role">${m.role === 'user' ? '👤 You' : '✨ Trivx AI'}</div>
             <div class="message-content">${this._escapeHtml(m.content)}</div>
           </div>`
       )
@@ -168,23 +168,25 @@ export class AIChatPanel {
     const bodyContent = `
       <div class="container chat-container">
         <div class="chat-header">
-          <h2>🤖 Trivx AI Assistant</h2>
-          <button class="secondary" onclick="clearChat()">Clear</button>
+          <h2>✨ Trivx AI Chat</h2>
+          <button class="secondary" title="Clear Chat" onclick="clearChat()">
+            <span style="font-size: 16px;">↺</span> Clear
+          </button>
         </div>
         <div id="messages" class="messages-area">
           ${messagesHtml || '<div class="empty-state">Ask me anything about your project, deployments, or DevOps!</div>'}
           <div id="streaming" style="display:none;">
             <div class="message assistant">
-              <div class="message-role">Trivx AI</div>
+              <div class="message-role">✨ Trivx AI</div>
               <div class="message-content" id="streamContent"></div>
             </div>
           </div>
         </div>
         <div class="chat-input-area">
-          <textarea id="messageInput" placeholder="Type your message..." rows="2"></textarea>
+          <textarea id="messageInput" placeholder="Ask Trivx AI..." rows="1"></textarea>
           <div class="chat-actions">
-            <button id="sendBtn" onclick="sendMessage()">Send</button>
             <button id="cancelBtn" class="secondary" style="display:none;" onclick="cancelStream()">Cancel</button>
+            <button id="sendBtn" onclick="sendMessage()">Send</button>
           </div>
         </div>
       </div>
@@ -204,6 +206,7 @@ export class AIChatPanel {
         if (!text) return;
         vscode.postMessage({ command: 'sendMessage', text });
         messageInput.value = '';
+        messageInput.style.height = 'auto';
       }
 
       function cancelStream() {
@@ -213,6 +216,16 @@ export class AIChatPanel {
       function clearChat() {
         vscode.postMessage({ command: 'clear' });
       }
+
+      messageInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+        if (this.value.trim().length > 0) {
+          sendBtn.style.opacity = '1';
+        } else {
+          sendBtn.style.opacity = '0.7';
+        }
+      });
 
       messageInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -227,7 +240,7 @@ export class AIChatPanel {
           case 'userMessage': {
             const div = document.createElement('div');
             div.className = 'message user';
-            div.innerHTML = '<div class="message-role">You</div><div class="message-content">' + escapeHtml(msg.content) + '</div>';
+            div.innerHTML = '<div class="message-role">👤 You</div><div class="message-content">' + escapeHtml(msg.content) + '</div>';
             messagesDiv.insertBefore(div, streamingDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
             break;
@@ -236,7 +249,7 @@ export class AIChatPanel {
             streamContent.textContent = '';
             streamingDiv.style.display = 'block';
             sendBtn.style.display = 'none';
-            cancelBtn.style.display = 'inline-block';
+            cancelBtn.style.display = 'flex';
             break;
           case 'streamChunk':
             streamContent.textContent += msg.content;
@@ -246,9 +259,9 @@ export class AIChatPanel {
             streamingDiv.style.display = 'none';
             const div = document.createElement('div');
             div.className = 'message assistant';
-            div.innerHTML = '<div class="message-role">Trivx AI</div><div class="message-content">' + escapeHtml(streamContent.textContent) + '</div>';
+            div.innerHTML = '<div class="message-role">✨ Trivx AI</div><div class="message-content">' + escapeHtml(streamContent.textContent) + '</div>';
             messagesDiv.insertBefore(div, streamingDiv);
-            sendBtn.style.display = 'inline-block';
+            sendBtn.style.display = 'flex';
             cancelBtn.style.display = 'none';
             break;
           }

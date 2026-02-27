@@ -304,8 +304,27 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   // ─── Auth State Change Handler ─────────────────────────────────────────────
   context.subscriptions.push(
-    authService.onAuthStateChanged((isLoggedIn: boolean) => {
+    authService.onAuthStateChanged(async (isLoggedIn: boolean) => {
       if (isLoggedIn) {
+        const user = authService.currentUser;
+        if (user) {
+          // Attempt to auto-fetch and select organization if none selected
+          if (!orgService.getCurrentOrgId()) {
+            const orgs = await orgService.listOrganizations(user.id);
+            if (orgs.length > 0) {
+              await orgService.setCurrentOrg(orgs[0]);
+            }
+          }
+
+          // Attempt to auto-fetch and select project if none selected
+          const currentOrgId = orgService.getCurrentOrgId();
+          if (currentOrgId && !projectService.getCurrentProjectId()) {
+            const projects = await projectService.listProjects(currentOrgId);
+            if (projects.length > 0) {
+              await projectService.setCurrentProject(projects[0].id);
+            }
+          }
+        }
         refreshAll();
       } else {
         refreshAll();

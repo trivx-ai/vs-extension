@@ -1,22 +1,25 @@
 /* Trivx WebView shared styles - loaded via webview URI */
 :root {
-  --trivx-brand: #f2613f;
-  --trivx-brand-light: #ff7f5f;
-  --trivx-brand-dark: #d94c2b;
+  --trivx-bg-primary: var(--vscode-editor-background);
+  --trivx-bg-secondary: var(--vscode-editorWidget-background);
+  --trivx-border: var(--vscode-widget-border);
+  --trivx-text: var(--vscode-foreground);
+  --trivx-text-muted: var(--vscode-descriptionForeground);
+  --trivx-accent: var(--vscode-focusBorder);
 }
 
 body {
   font-family: var(--vscode-font-family);
   font-size: var(--vscode-font-size);
-  color: var(--vscode-foreground);
-  background-color: var(--vscode-editor-background);
+  color: var(--trivx-text);
+  background-color: var(--trivx-bg-primary);
   padding: 0;
   margin: 0;
   line-height: 1.5;
 }
 
 a {
-  color: var(--trivx-brand);
+  color: var(--vscode-textLink-foreground);
   text-decoration: none;
 }
 
@@ -25,6 +28,6 @@ a:hover {
 }
 
 ::selection {
-  background: var(--trivx-brand);
-  color: white;
+  background: var(--vscode-editor-selectionBackground);
+  color: var(--vscode-editor-selectionForeground);
 }
